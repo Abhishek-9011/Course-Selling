@@ -1,6 +1,4 @@
-import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

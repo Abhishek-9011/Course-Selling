@@ -27,16 +27,18 @@ export const createCourse = async (req, res) => {
 // Get all courses
 export const getCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate(
-      "instructor category sections reviews"
+    const instructorId = req.user.id; 
+    const courses = await Course.find({ instructor: instructorId }).populate(
+      "category sections reviews"
     );
+
     res.status(200).json({ success: true, courses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get a single course by ID
+
 export const getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).populate(

@@ -134,14 +134,14 @@ const AutoMovingCarousel = () => {
   const visibleCourses = getVisibleCourses();
 
   return (
-    <div className="w-full px-4 py-8 bg-gray-50">
+    <div className="w-full px-4 py-8 ">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">Featured Courses</h2>
-          <div className="flex space-x-2">
+          {/* <div className="flex space-x-2">
             {courses.map((_, index) => (
               <button
-                key={index}
+                key={index} 
                 onClick={() => goToSlide(index)}
                 className={`w-3 h-3 rounded-full ${
                   (currentIndex % courses.length) === index ? 'bg-indigo-600' : 'bg-gray-300'
@@ -149,7 +149,7 @@ const AutoMovingCarousel = () => {
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
-          </div>
+          </div> */}
         </div>
 
         <div
@@ -193,7 +193,7 @@ const AutoMovingCarousel = () => {
         </div>
 
         <div className="mt-8 flex justify-center">
-          <button 
+          {/* <button 
             onClick={() => {
               setCurrentIndex(prevIndex => {
                 if (prevIndex <= 0) {
@@ -207,8 +207,8 @@ const AutoMovingCarousel = () => {
             <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-          </button>
-          <button 
+          </button> */}
+          {/* <button 
             onClick={() => {
               setCurrentIndex(prevIndex => {
                 if (prevIndex >= courses.length * 2 - 1) {
@@ -222,7 +222,7 @@ const AutoMovingCarousel = () => {
             <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

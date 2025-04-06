@@ -1,7 +1,23 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, Target, BookOpen, Dumbbell, Coffee, Sun, Moon, CheckCircle, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  Calendar,
+  Clock,
+  Target,
+  BookOpen,
+  Dumbbell,
+  Coffee,
+  Sun,
+  Moon,
+  CheckCircle,
+  Plus,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ScheduleGeneratorForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     goals: [],
     wakeUpTime: "",
@@ -11,7 +27,7 @@ const ScheduleGeneratorForm = () => {
     exercisePreference: "",
     mealTimes: { breakfast: "", lunch: "", dinner: "" },
     weekendDifferent: true,
-    specificActivities: []
+    specificActivities: [],
   });
 
   const [goalInput, setGoalInput] = useState("");
@@ -25,29 +41,29 @@ const ScheduleGeneratorForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
     checkCompletion();
   };
 
   const handleMealTimeChange = (meal, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       mealTimes: {
         ...prev.mealTimes,
-        [meal]: value
-      }
+        [meal]: value,
+      },
     }));
     checkCompletion();
   };
 
   const addItem = (type, value, setValue) => {
     if (value.trim() !== "") {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [type]: [...prev[type], value.trim()]
+        [type]: [...prev[type], value.trim()],
       }));
       setValue("");
       checkCompletion();
@@ -55,37 +71,66 @@ const ScheduleGeneratorForm = () => {
   };
 
   const removeItem = (type, index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [type]: prev[type].filter((_, i) => i !== index)
+      [type]: prev[type].filter((_, i) => i !== index),
     }));
     checkCompletion();
   };
 
   const checkCompletion = () => {
-    const requiredFieldsFilled = 
-      formData.wakeUpTime && 
-      formData.sleepTime && 
-      formData.workHours && 
-      formData.exercisePreference && 
-      formData.mealTimes.breakfast && 
-      formData.mealTimes.lunch && 
+    const requiredFieldsFilled =
+      formData.wakeUpTime &&
+      formData.sleepTime &&
+      formData.workHours &&
+      formData.exercisePreference &&
+      formData.mealTimes.breakfast &&
+      formData.mealTimes.lunch &&
       formData.mealTimes.dinner;
-    
+
     setShowSubmitButton(requiredFieldsFilled && currentStep === totalSteps);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    console.log("Submitting data:", formData);
-    
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("http://localhost:3000/course/timetable", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          goals: formData.goals,
+          wakeUpTime: formData.wakeUpTime,
+          sleepTime: formData.sleepTime,
+          workHours: formData.workHours,
+          studyTopics: formData.studyTopics,
+          exercisePreference: formData.exercisePreference,
+          mealTimes: formData.mealTimes,
+          weekendDifferent: formData.weekendDifferent,
+          specificActivities: formData.specificActivities,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate schedule");
+      }
+
+      const data = await response.json();
+
+      // Store the generated timetable in localStorage to access it on the next page
+      localStorage.setItem("generatedTimetable", JSON.stringify(data));
+
+      // Redirect to the timetable display page
+      navigate("/timetable");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to generate schedule. Please try again.");
+    } finally {
       setIsLoading(false);
-      alert("Your personalized schedule has been generated!");
-    }, 1500);
+    }
   };
 
   const nextStep = () => {
@@ -108,7 +153,7 @@ const ScheduleGeneratorForm = () => {
     { id: 3, title: "Work & Study", icon: <BookOpen size={18} /> },
     { id: 4, title: "Exercise", icon: <Dumbbell size={18} /> },
     { id: 5, title: "Meals", icon: <Coffee size={18} /> },
-    { id: 6, title: "Activities", icon: <CheckCircle size={18} /> }
+    { id: 6, title: "Activities", icon: <CheckCircle size={18} /> },
   ];
 
   return (
@@ -130,16 +175,20 @@ const ScheduleGeneratorForm = () => {
           <div className="flex justify-between items-center">
             {steps.map((step) => (
               <div key={step.id} className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${
-                  currentStep >= step.id 
-                    ? 'bg-indigo-600 text-white' 
-                    : 'bg-gray-100 text-gray-400'
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${
+                    currentStep >= step.id
+                      ? "bg-indigo-600 text-white"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
                   {step.icon}
                 </div>
-                <span className={`text-xs font-medium ${
-                  currentStep >= step.id ? 'text-indigo-600' : 'text-gray-500'
-                }`}>
+                <span
+                  className={`text-xs font-medium ${
+                    currentStep >= step.id ? "text-indigo-600" : "text-gray-500"
+                  }`}
+                >
                   {step.title}
                 </span>
               </div>
@@ -151,8 +200,10 @@ const ScheduleGeneratorForm = () => {
           {/* Step 1: Sleep Schedule */}
           {currentStep === 1 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Sleep Schedule</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Your Sleep Schedule
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-indigo-50 p-5 rounded-xl">
                   <h3 className="text-lg font-semibold flex items-center mb-4">
@@ -183,7 +234,7 @@ const ScheduleGeneratorForm = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="bg-indigo-50 p-5 rounded-xl">
                 <h3 className="text-lg font-semibold mb-4">Weekend Schedule</h3>
                 <label className="inline-flex items-center">
@@ -206,8 +257,10 @@ const ScheduleGeneratorForm = () => {
           {/* Step 2: Goals */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Daily Goals</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Your Daily Goals
+              </h2>
+
               <div className="bg-indigo-50 p-5 rounded-xl">
                 <div className="flex gap-2">
                   <input
@@ -219,7 +272,7 @@ const ScheduleGeneratorForm = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => addItem('goals', goalInput, setGoalInput)}
+                    onClick={() => addItem("goals", goalInput, setGoalInput)}
                     className="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 flex items-center"
                   >
                     <Plus size={18} />
@@ -227,11 +280,14 @@ const ScheduleGeneratorForm = () => {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {formData.goals.map((goal, index) => (
-                    <div key={index} className="bg-white rounded-full px-4 py-2 flex items-center shadow-sm">
+                    <div
+                      key={index}
+                      className="bg-white rounded-full px-4 py-2 flex items-center shadow-sm"
+                    >
                       <span className="text-sm">{goal}</span>
                       <button
                         type="button"
-                        onClick={() => removeItem('goals', index)}
+                        onClick={() => removeItem("goals", index)}
                         className="ml-2 text-gray-400 hover:text-red-500"
                       >
                         <X size={16} />
@@ -246,8 +302,10 @@ const ScheduleGeneratorForm = () => {
           {/* Step 3: Work & Study */}
           {currentStep === 3 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Work & Study</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Work & Study
+              </h2>
+
               <div className="bg-indigo-50 p-5 rounded-xl">
                 <h3 className="text-lg font-semibold mb-4">Work Hours</h3>
                 <input
@@ -260,7 +318,7 @@ const ScheduleGeneratorForm = () => {
                   className="block w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
-              
+
               <div className="bg-indigo-50 p-5 rounded-xl">
                 <h3 className="text-lg font-semibold mb-4">Study Topics</h3>
                 <div className="flex gap-2">
@@ -273,7 +331,13 @@ const ScheduleGeneratorForm = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => addItem('studyTopics', studyTopicInput, setStudyTopicInput)}
+                    onClick={() =>
+                      addItem(
+                        "studyTopics",
+                        studyTopicInput,
+                        setStudyTopicInput
+                      )
+                    }
                     className="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 flex items-center"
                   >
                     <Plus size={18} />
@@ -281,11 +345,14 @@ const ScheduleGeneratorForm = () => {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {formData.studyTopics.map((topic, index) => (
-                    <div key={index} className="bg-white rounded-full px-4 py-2 flex items-center shadow-sm">
+                    <div
+                      key={index}
+                      className="bg-white rounded-full px-4 py-2 flex items-center shadow-sm"
+                    >
                       <span className="text-sm">{topic}</span>
                       <button
                         type="button"
-                        onClick={() => removeItem('studyTopics', index)}
+                        onClick={() => removeItem("studyTopics", index)}
                         className="ml-2 text-gray-400 hover:text-red-500"
                       >
                         <X size={16} />
@@ -300,10 +367,14 @@ const ScheduleGeneratorForm = () => {
           {/* Step 4: Exercise */}
           {currentStep === 4 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Exercise Preferences</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Exercise Preferences
+              </h2>
+
               <div className="bg-indigo-50 p-5 rounded-xl">
-                <h3 className="text-lg font-semibold mb-4">When do you prefer to exercise?</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  When do you prefer to exercise?
+                </h3>
                 <select
                   name="exercisePreference"
                   value={formData.exercisePreference}
@@ -320,7 +391,7 @@ const ScheduleGeneratorForm = () => {
                 </select>
                 {formData.exercisePreference && (
                   <p className="mt-2 text-sm text-gray-600">
-                    {formData.exercisePreference === "none" 
+                    {formData.exercisePreference === "none"
                       ? "Your schedule won't include exercise time."
                       : `Your schedule will prioritize ${formData.exercisePreference} workouts.`}
                   </p>
@@ -332,15 +403,19 @@ const ScheduleGeneratorForm = () => {
           {/* Step 5: Meals */}
           {currentStep === 5 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Meal Times</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Meal Times
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-indigo-50 p-5 rounded-xl">
                   <h3 className="text-lg font-semibold mb-4">Breakfast</h3>
                   <input
                     type="time"
                     value={formData.mealTimes.breakfast}
-                    onChange={(e) => handleMealTimeChange('breakfast', e.target.value)}
+                    onChange={(e) =>
+                      handleMealTimeChange("breakfast", e.target.value)
+                    }
                     required
                     className="block w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
@@ -350,7 +425,9 @@ const ScheduleGeneratorForm = () => {
                   <input
                     type="time"
                     value={formData.mealTimes.lunch}
-                    onChange={(e) => handleMealTimeChange('lunch', e.target.value)}
+                    onChange={(e) =>
+                      handleMealTimeChange("lunch", e.target.value)
+                    }
                     required
                     className="block w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
@@ -360,7 +437,9 @@ const ScheduleGeneratorForm = () => {
                   <input
                     type="time"
                     value={formData.mealTimes.dinner}
-                    onChange={(e) => handleMealTimeChange('dinner', e.target.value)}
+                    onChange={(e) =>
+                      handleMealTimeChange("dinner", e.target.value)
+                    }
                     required
                     className="block w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
@@ -372,10 +451,14 @@ const ScheduleGeneratorForm = () => {
           {/* Step 6: Activities */}
           {currentStep === 6 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Specific Activities</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Specific Activities
+              </h2>
+
               <div className="bg-indigo-50 p-5 rounded-xl">
-                <h3 className="text-lg font-semibold mb-4">Add any specific activities</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Add any specific activities
+                </h3>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -386,7 +469,13 @@ const ScheduleGeneratorForm = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => addItem('specificActivities', activityInput, setActivityInput)}
+                    onClick={() =>
+                      addItem(
+                        "specificActivities",
+                        activityInput,
+                        setActivityInput
+                      )
+                    }
                     className="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 flex items-center"
                   >
                     <Plus size={18} />
@@ -394,11 +483,14 @@ const ScheduleGeneratorForm = () => {
                 </div>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {formData.specificActivities.map((activity, index) => (
-                    <div key={index} className="bg-white rounded-lg px-4 py-3 flex items-center justify-between shadow-sm">
+                    <div
+                      key={index}
+                      className="bg-white rounded-lg px-4 py-3 flex items-center justify-between shadow-sm"
+                    >
                       <span>{activity}</span>
                       <button
                         type="button"
-                        onClick={() => removeItem('specificActivities', index)}
+                        onClick={() => removeItem("specificActivities", index)}
                         className="text-gray-400 hover:text-red-500"
                       >
                         <X size={16} />
@@ -422,7 +514,7 @@ const ScheduleGeneratorForm = () => {
                 Previous
               </button>
             )}
-            
+
             {currentStep < totalSteps ? (
               <button
                 type="button"
@@ -432,7 +524,7 @@ const ScheduleGeneratorForm = () => {
                 Next
                 <ChevronRight size={18} className="ml-2" />
               </button>
-            ) : (
+            ) : showSubmitButton ? null : (
               <button
                 type="button"
                 onClick={nextStep}
@@ -452,15 +544,31 @@ const ScheduleGeneratorForm = () => {
                 disabled={isLoading}
                 className={`w-full max-w-md mx-auto py-4 px-6 rounded-xl text-white font-semibold text-lg transition-all ${
                   isLoading
-                    ? 'bg-indigo-400'
-                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                    ? "bg-indigo-400"
+                    : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl"
                 }`}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Generating Your Schedule...
                   </div>
@@ -477,7 +585,8 @@ const ScheduleGeneratorForm = () => {
 
         <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 rounded-b-2xl">
           <p className="text-sm text-gray-600 text-center">
-            Step {currentStep} of {totalSteps} • {Math.round((currentStep / totalSteps) * 100)}% complete
+            Step {currentStep} of {totalSteps} •{" "}
+            {Math.round((currentStep / totalSteps) * 100)}% complete
           </p>
         </div>
       </div>

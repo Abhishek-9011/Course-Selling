@@ -1,24 +1,47 @@
 import React, { useState } from 'react';
-import { Map, Route, Compass, ArrowRight } from 'lucide-react';
+import { Route, Compass, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const RoadmapGenerator = () => {
-  const [topic, setTopic] = useState('');
+  const [field, setField] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!topic.trim()) return;
+    if (!field.trim()) return;
     
     setIsLoading(true);
-    // In a real application, you would handle the form submission here
-    // For example, redirect to a roadmap generation page with the selected topic
-    console.log(`Generating roadmap for: ${topic}`);
+    setError(null);
     
-    // Simulate loading
-    setTimeout(() => {
+    try {
+      const response = await axios.post('http://localhost:3000/course/roadmap', { 
+        field 
+      });
+      
+      // Store roadmap data in localStorage to pass to the roadmap page
+      localStorage.setItem('currentRoadmap', JSON.stringify(response.data));
+      
+      // Navigate to the roadmap page
+      navigate('/roadmap');
+      
+    } catch (error) {
+      console.error('Error generating roadmap:', error);
+      setError(
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to generate roadmap. Please try again.'
+      );
+    } finally {
       setIsLoading(false);
-      alert(`Roadmap for "${topic}" would be generated here!`);
-    }, 1500);
+    }
+  };
+
+  const populateField = (suggestion) => {
+    setField(suggestion);
+    setError(null); // Clear error when selecting a suggestion
   };
 
   return (
@@ -37,14 +60,20 @@ const RoadmapGenerator = () => {
         
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+          
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Compass className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              value={field}
+              onChange={(e) => setField(e.target.value)}
               className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               placeholder="Enter a skill (e.g., Machine Learning, Web Development)"
               required
@@ -53,9 +82,9 @@ const RoadmapGenerator = () => {
           
           <button
             type="submit"
-            disabled={isLoading || !topic.trim()}
+            disabled={isLoading || !field.trim()}
             className={`mt-6 w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white font-medium ${
-              isLoading || !topic.trim()
+              isLoading || !field.trim()
                 ? 'bg-teal-300 cursor-not-allowed'
                 : 'bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
             }`}
@@ -77,10 +106,30 @@ const RoadmapGenerator = () => {
           
           <div className="mt-4">
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full">Web Development</span>
-              <span className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full">Machine Learning</span>
-              <span className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full">UX Design</span>
-              <span className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full">Data Science</span>
+              <span 
+                onClick={() => populateField('Web Development')}
+                className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full cursor-pointer hover:bg-teal-100 transition-colors"
+              >
+                Web Development
+              </span>
+              <span 
+                onClick={() => populateField('Machine Learning')}
+                className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full cursor-pointer hover:bg-teal-100 transition-colors"
+              >
+                Machine Learning
+              </span>
+              <span 
+                onClick={() => populateField('UX Design')}
+                className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full cursor-pointer hover:bg-teal-100 transition-colors"
+              >
+                UX Design
+              </span>
+              <span 
+                onClick={() => populateField('Data Science')}
+                className="px-2 py-1 bg-teal-50 text-teal-700 rounded-full cursor-pointer hover:bg-teal-100 transition-colors"
+              >
+                Data Science
+              </span>
             </div>
           </div>
         </form>

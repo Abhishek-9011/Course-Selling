@@ -1,24 +1,34 @@
 import React, { useState } from 'react';
 import { Search, BookOpen, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const QuizGenerator = () => {
   const [topic, setTopic] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!topic.trim()) return;
     
     setIsLoading(true);
-    // In a real application, you would handle the form submission here
-    // For example, redirect to a quiz page with the selected topic
-    console.log(`Generating quiz for topic: ${topic}`);
     
-    // Simulate loading
-    setTimeout(() => {
+    try {
+      const response = await axios.post('http://localhost:3000/course/quiz', { topic });
+      
+      // Store quiz data in localStorage to pass to the quiz page
+      localStorage.setItem('currentQuiz', JSON.stringify(response.data));
+      
+      // Navigate to the quiz page
+      navigate('/quiz');
+      
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      alert('Failed to generate quiz. Please try again.');
+    } finally {
       setIsLoading(false);
-      alert(`Quiz on "${topic}" would be generated here!`);
-    }, 1500);
+    }
   };
 
   return (

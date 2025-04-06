@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 import Quiz from './routes/quiz.route.js' 
 import User from './routes/user.route.js'
 import Instructor from './routes/admin.route.js'
+import cors from "cors";
 const app = express();
+app.use(cors());
 app.use(express.json());
 dotenv.config();
 app.use("/course", Quiz);

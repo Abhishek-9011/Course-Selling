@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function AllCourses() {
   return (
     <div className="flex justify-center mt-8 pb-8">
-      <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors  flex items-center">
+      <Link to={"/course"} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors  flex items-center">
         View All Courses
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -17,7 +18,7 @@ function AllCourses() {
             clipRule="evenodd" 
           />
         </svg>
-      </button>
+      </Link>
     </div>
   );
 }

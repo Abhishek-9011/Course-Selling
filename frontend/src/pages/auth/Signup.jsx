@@ -23,7 +23,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/auth/signup", {
+      const response = await axios.post("http://localhost:3000/auth/signup", {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,

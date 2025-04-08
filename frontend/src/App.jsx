@@ -7,13 +7,13 @@ import Footer from "./layout/Footer"
 import CourseCatalog from "./pages/CourseCatalog ";
 import QuizGenerator from "./features/ai/QuizGenerator";
 import RoadmapGenerator from "./features/ai/RoadmapGenerator";
-import ScheduleGeneratorForm from "/features/ai/ScheduleGeneratorForm";
+import ScheduleGeneratorForm from "./features/ai/ScheduleGeneratorForm";
 import CourseListingPage from "./pages/instructor/CourseListingPage";
 import CourseEditorPage from "./pages/instructor/CourseEditorPage";
 import AdminDashboard from "./pages/instructor/AdminDashboard";
 import QuizPage from "./pages/ai/QuizPage";
 import RoadmapPage from "./pages/ai/RoadmapPage";
-import TimetableDisplay from "./pages/ai/TimetableDisplay ";
+import TimetableDisplay from "./pages/ai/TimetableDisplay";
 function App() {
   return (
     <>

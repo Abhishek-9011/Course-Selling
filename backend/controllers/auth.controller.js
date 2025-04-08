@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 export const signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password, role } = req.body;
@@ -22,7 +24,7 @@ export const signup = async (req, res) => {
 
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
-      process.env.JWT_USER_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
@@ -77,7 +79,7 @@ export const signin = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_USER_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
 

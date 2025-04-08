@@ -13,28 +13,44 @@ export default function Signin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Set base URL for API requests
+  const API_BASE_URL = "http://localhost:3000";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/auth/signin", {
+      // Updated to match your backend URL structure
+      const response = await axios.post(`${API_BASE_URL}/auth/signin`, {
         email: formData.email,
         password: formData.password,
       });
 
-      // Handle successful login
+      // Handle successful login based on your backend response structure
       if (response.data.success) {
-        // Save token to localStorage
+        // Save token and user data to localStorage
         localStorage.setItem("token", response.data.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.data.user));
-
-        // Redirect to dashboard
-        navigate("/dashboard");
+        
+        // Set auth header for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`;
+        
+        // Redirect based on user role
+        const userRole = response.data.data.user.role;
+        if (userRole === "admin" || userRole === "instructor") {
+          navigate("/instructor/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to sign in");
+      console.error("Login error:", error);
+      setError(
+        error.response?.data?.message || 
+        "Failed to sign in. Please check your credentials."
+      );
     } finally {
       setLoading(false);
     }
@@ -137,9 +153,12 @@ export default function Signin() {
             </button>
           </form>
 
-          <div className="text-center">
-            <p className="mb-4">
-              Don't have an account yet?  <Link to="/signup">Create Account</Link>
+          <div className="text-center mt-6">
+            <p>
+              Don't have an account yet?{" "}
+              <Link to="/signup" className="text-blue-600 font-medium">
+                Create Account
+              </Link>
             </p>
           </div>
         </div>

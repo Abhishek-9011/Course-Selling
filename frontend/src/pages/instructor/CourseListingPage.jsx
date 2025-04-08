@@ -1,4 +1,4 @@
-wimport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Users, Star, DollarSign, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
